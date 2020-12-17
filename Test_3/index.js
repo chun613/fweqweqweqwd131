@@ -32,7 +32,7 @@ exports.handler = async (event) => {
         console.log(`Shorten url: ${longUrl}, ${body}`);
         if (longUrl === undefined) {
             return {
-                statusCode: 404   
+                statusCode: 400   
             }
         }
 
@@ -65,7 +65,7 @@ exports.handler = async (event) => {
     }
 
     return {
-        statusCode: 404
+        statusCode: 400
     };
 };
 

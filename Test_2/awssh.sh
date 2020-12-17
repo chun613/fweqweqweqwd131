@@ -3,7 +3,7 @@
 print_usage() {
     echo ""
     echo "Usage:"
-    echo "./script_1.sh [host name] [key location] [aws profile]"
+    echo "./awssh.sh [host name] [key location] [aws profile]"
     echo "[host name]       - host name of the ec2 instance, mandatory"
     echo "[key location]    - ssh key location, mandatory"
     echo "[aws profile]     - the aws profile to be used to query ec2 IP address, default to \"default\", optional"
