@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROFILE="marcus.cheng"
+PROFILE="default"
 REGION=$(aws configure get region --profile $PROFILE)
 
 # ------------ DynamoDB ------------
@@ -37,7 +37,7 @@ SHORTEN_URL_DB="shorten_url"
 echo "Check is dynamodb table $SHORTEN_URL_DB exist..."
 RESP=$(aws dynamodb describe-table \
     --table-name $SHORTEN_URL_DB \
-    --profile marcus.cheng)
+    --profile $PROFILE)
 if [ $? == "255" ]; then
     echo "Create dynamoDB table: $SHORTEN_URL_DB"
     aws dynamodb create-table \
