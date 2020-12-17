@@ -34,12 +34,12 @@ A lambda function will be triggered upon user makes request to API gateway. Depe
 Since the logic itself is quite simple and fast to execute, using lambda is suitable in this case where we don't have to worry about the maintenance and provisioning of the underlying infrastructure.  
 By default, lambda supports up to 1,000 concurrent call. We can increase this limit by requesting a quota increase. To further scale the function execution, we can use other AWS services like ECS that can spin up hundreds of containers to handled heavy loads.
 
-3. DynamoDB
+3. DynamoDB  
 Lambda function will store the shorten and full url in dynamoDB. 
 We can scale up DynamoDB by changing the read and write unit of it. 
 
 ### Usage
-1. Run `./setup.sh [aws profile]`, e.g. ./setup.sh default  
+1. Run `./setup.sh [aws profile]`, e.g. `./setup.sh default`
 This will setup dynamodb, lambda and api gateway by the given aws profile. 
 
 
@@ -93,7 +93,7 @@ Path:
 | Name      | Description |  
 | --------- | ----------- |  
 | index.js  | the code for lambda function, written in Javascript |
-| setup.sh  | Bash script to setup all the necessary cloud component |
+| setup.sh  | Bash script to setup all the necessary cloud components |
 | trust-policy.json | IAM policy used by lambda role |
 
 ### Enhancement
@@ -105,4 +105,4 @@ Path:
 7. Include caching layer
 
 ### Alternative
-As mentioned in system design section, an approach to further scale up the infrastructure is to setup load balancer in front of api gateway, and replace lambda function by ECS that can spin up many containers to support to load. Futhurmore, we can consider to cloudfront to cache some of the request to offload the load of lambda/ECS and DynamoDB. 
+As mentioned in system design section, an approach to further scale up the infrastructure is to setup load balancer in front of api gateway, and replace lambda function by ECS that can spin up many containers to support the load. Futhurmore, we can consider to use cloudfront to cache some of the requests to offload the lambda/ECS and DynamoDB.
