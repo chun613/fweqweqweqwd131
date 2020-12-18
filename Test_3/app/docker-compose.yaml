@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  app:
+    build: .
+    container_name: shorten-url
+    ports:
+      - "80:80"
+    env_file:
+      - env.txt

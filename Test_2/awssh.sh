@@ -3,10 +3,11 @@
 print_usage() {
     echo ""
     echo "Usage:"
-    echo "./awssh.sh [host name] [key location] [aws profile]"
+    echo "./awssh.sh [host name] [key location] [aws profile] [command]"
     echo "[host name]       - host name of the ec2 instance, mandatory"
     echo "[key location]    - ssh key location, mandatory"
     echo "[aws profile]     - the aws profile to be used to query ec2 IP address, default to \"default\", optional"
+    echo "[command]         - command to be executed remotely, optional"
     echo ""
 }
 
@@ -24,6 +25,7 @@ check_parameter() {
 HOST=$1
 KEY=$2
 AWS_PROFILE=${3:-"default"}
+COMMAND=$4
 check_parameter "Host can not be empty." $HOST
 check_parameter "Key location can not be empty." $KEY
 
@@ -54,4 +56,9 @@ else
 fi
 
 # SSH into ec2
-ssh -i $KEY ec2-user@$IP
+if [ -z "$COMMAND" ]; then
+    ssh -i $KEY ec2-user@$IP
+else 
+    ssh -i $KEY ec2-user@$IP $COMMAND
+fi
+

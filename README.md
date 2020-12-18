@@ -24,42 +24,49 @@ Located inside `Test_3` folder.
 ### System design 
 This system is composed by 3 major aws services:  
 
-1. API Gateway  
-API gateway is used to serve users' requests. Received requests will pass through to Lambda function for shortening the url or getting the full url.   
-With API gateway, we can easily manage the entry point of the API, and adding authentication and caching layer in the future.   
-By default, API gateway allows for up to 10,000 requests per second. And as it is managed by AWS, we don't have to worry that much about the availability. In case of further increasing the accepted number of request per second, we can add load balancer in front of api gateway to further scale the infrastructure. 
+1. Load Balancer
+As the API entrypoint, load balancer can support more than 1000 request per sec and AWS will scale it up automatically depending on its load. 
+The load balancer has a target group of ec2, make it easy for us to scale up the number of ec2 instance by spinning up new instance and register it to the target group. 
 
-2. Lambda  
-A lambda function will be triggered upon user makes request to API gateway. Depending on the http method, lambda will either shorten the given url, or return a full url.  
-Since the logic itself is quite simple and fast to execute, using lambda is suitable in this case where we don't have to worry about the maintenance and provisioning of the underlying infrastructure.  
-By default, lambda supports up to 1,000 concurrent call. We can increase this limit by requesting a quota increase. To further scale the function execution, we can use other AWS services like ECS that can spin up hundreds of containers to handled heavy loads.
+2. EC2 
+A docker will be deployed to EC2 to handle the actual shorten url logic. In the setup script, user data is used to initially bootstrap the EC2 by installing docker and docker-compose. Also, 2 EC2 instance is being used to prevent single point of failure for the application. Of course, further scale up the number of EC2 instance is possible and is as simple as registering the new EC2 instance to the target group. 
 
 3. DynamoDB  
-Lambda function will store the shorten and full url in dynamoDB. 
-We can scale up DynamoDB by changing the read and write unit of it. 
+Docker container will save the shorten and full url in dynamoDB. We can scale up DynamoDB by changing the read and write unit of it. 
 
 ### Usage
-1. Run `./setup.sh [aws profile]`, e.g. `./setup.sh default`
-This will setup dynamodb, lambda and api gateway by the given aws profile. 
+1. Run script to setup the entire infrastructure
+``` bash
+$./setup.sh [aws profile]
+$ example
+$ ./setup.sh default
+```
+This will setup load balancer, EC2 and DynamoDB by the given aws profile. 
 
-
-2. At the end of the script, you will see an url similar to this. Which is the endpoint of the service.
+2. At the end of the script, you will see an url similar to this, which is the endpoint of the service. Mark it down for later use.
 ```bash
-https://[API_GATEWAY_RESOURCE_ID].execute-api.ap-southeast-1.amazonaws.com/prod/newurl
+http://url-shorten-lb-514807435.ap-southeast-1.elb.amazonaws.com/newurl
 ```
 
-3. Make shorten url request by calling this
+3. Wait for few minutes for the ec2 to complete the installation, and than run this to start the docker container in ec2
 ```bash
-$ curl -i -XPOST https://[API_GATEWAY_RESOURCE_ID].execute-api.ap-southeast-1.amazonaws.com/prod/newurl -d '{"url":"https://google.com"}'
+$ ./start-application.sh [aws profile]
+$ example
+$ ./start-application.sh default
+```
+
+4. Make shorten url request by calling this
+```bash
+$ curl -i -XPOST https://[LB_DNS]/prod/newurl -d '{"url":"https://google.com"}' -H 'Content-Type: application/json'
 ```
 
 4. Get full url by calling this
 ```bash
-$ https://[API_GATEWAY_RESOURCE_ID].execute-api.ap-southeast-1.amazonaws.com/prod/[SHORTEN_URL]
+$ curl -i http://[LB_DNS]/[SHORTEN_URL]
 ```
 
 ### API schema
-There are 2 API endpoints exposed by API gateway:  
+There are 2 API endpoints exposed by the application:  
 ```yaml
 Path:  
   /newurl:  
@@ -92,17 +99,28 @@ Path:
 ### Files
 | Name      | Description |  
 | --------- | ----------- |  
-| index.js  | the code for lambda function, written in Javascript |
+| app/      | the code for the docker container, written in Javascript |
 | setup.sh  | Bash script to setup all the necessary cloud components |
-| trust-policy.json | IAM policy used by lambda role |
+| start-application.sh  | Script for starting up the docker container |
+| bootstrap-ec2.txt  | user data file passed to ec2 during startup |
+| trust-policy.json | IAM policy used by EC2 role |
+
 
 ### Enhancement
 1. Make setup script re-runable 
-2. Minimise the DynamoDB access permission for lambda function
-3. Chek request parameters at API gateway level
-4. Use terraform to achieve all this
-6. Provide domain name instead of using api gateway url
-7. Include caching layer
+2. Minimise the DynamoDB access permission for EC2
+3. Use terraform to achieve all this
+4. Provide domain name to load balancer
+5. Use https instead of http
+6. Include caching layer
+7. Loop all eligible ec2 instance in start-application.sh instead of hard code each instance
 
-### Alternative
-As mentioned in system design section, an approach to further scale up the infrastructure is to setup load balancer in front of api gateway, and replace lambda function by ECS that can spin up many containers to support the load. Futhurmore, we can consider to use cloudfront to cache some of the requests to offload the lambda/ECS and DynamoDB.
+
+
+
+
+
+
+
+
+
