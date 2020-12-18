@@ -8,57 +8,6 @@ const app = express();
 const port = 80;
 const jsonParser = bodyParser.json();
 
-// exports.handler = async (event) => {
-//     console.log(`event.path: ${event.path}`);
-//     console.log(`event.httpMethod: ${event.httpMethod}`);
-//     console.log(`event.body: ${event.body}`);
-//     var docClient = new AWS.DynamoDB.DocumentClient();
-    
-//     if (event.httpMethod == "GET") {
-        
-//     } else if (event.httpMethod == "POST") {
-//         let body = (typeof event.body === 'string') ? JSON.parse(event.body): event.body;
-//         let longUrl = body.url;
-//         console.log(`Shorten url: ${longUrl}, ${body}`);
-//         if (longUrl === undefined) {
-//             return {
-//                 statusCode: 400   
-//             }
-//         }
-
-//         let data = await findByLongUrl(docClient, longUrl);
-//         console.log(`findByLongUrl: ${JSON.stringify(data)}`);
-//         if (data.Count > 0) {
-//             let shortUrl = data.Items[0].short_url;
-//             console.log(`Url found in db: ${shortUrl}`);
-//             return  {
-//                 statusCode: 200,
-//                 body: JSON.stringify({
-//                     url: longUrl,
-//                     shortenUrl: `https://${restApiId}.execute-api.${region}.amazonaws.com/prod/${shortUrl}`
-//                 })
-//             }
-//         }
-
-//         console.log(`Url not found in db, create short url`);
-//         let count = await getCounter(docClient);
-//         let shortUrl = UrlShortener.encode(count);
-//         await saveShortUrl(docClient, count, shortUrl, longUrl);
-//         console.log(`Short url saved, id: ${count}, shortUrl: ${shortUrl}, longUrl: ${longUrl}`);
-//         return {
-//             statusCode: 200,
-//             body: JSON.stringify({
-//                 url: longUrl,
-//                 shortenUrl: `https://${restApiId}.execute-api.${region}.amazonaws.com/prod/${shortUrl}`
-//             })
-//         }
-//     }
-
-//     return {
-//         statusCode: 400
-//     };
-// };
-
 async function findById(docClient, id) {
     const params = {
         TableName: 'shorten_url',
@@ -103,12 +52,12 @@ async function getCounter(ddb) {
     const params = {
         TableName: 'counter',
         Key:{
-            "ID": "1"
+            "id": "1"
         },
         ExpressionAttributeValues:{
             ":p": 1
         },
-        UpdateExpression: "set C = C + :p",
+        UpdateExpression: "set c = c + :p",
         ReturnValues:"UPDATED_NEW"
     }
     return new Promise((resolve, reject) => {
@@ -117,7 +66,7 @@ async function getCounter(ddb) {
                 console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
                 reject();
             } else {
-                resolve(data.Attributes.C);
+                resolve(data.Attributes.c);
             }
         });
     });

@@ -105,22 +105,29 @@ Path:
 | bootstrap-ec2.txt  | user data file passed to ec2 during startup |
 | trust-policy.json | IAM policy used by EC2 role |
 
+### DB schema
+Table: counter  
+Fields:   
+- id - Primary key  
+- c - Counter for shorten_url table
+
+<br/> 
+
+Table: shorten_url   
+Fields:   
+- id - Primary key
+- long_url - Full url provided by user
+- short_url - Short url calculated by application  
+
+Index:  
+- long_url_index -> long_url
+
 
 ### Enhancement
-1. Make setup script re-runable 
-2. Minimise the DynamoDB access permission for EC2
-3. Use terraform to achieve all this
-4. Provide domain name to load balancer
-5. Use https instead of http
-6. Include caching layer
-7. Loop all eligible ec2 instance in start-application.sh instead of hard code each instance
-
-
-
-
-
-
-
-
-
-
+1. Minimise the DynamoDB access permission for EC2
+2. Use terraform to achieve all this
+3. Provide domain name to load balancer
+4. Use https instead of http
+5. Include caching layer
+6. Loop all eligible ec2 instance in start-application.sh instead of hard code each instance
+7. health check endpoint in ec2

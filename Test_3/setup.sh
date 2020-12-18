@@ -15,8 +15,8 @@ if [ $? == "255" ]; then
     echo "Create dynamoDB table: $COUNTER_DB..."
     aws dynamodb create-table \
         --table-name $COUNTER_DB \
-        --key-schema AttributeName=ID,KeyType=HASH \
-        --attribute-definitions AttributeName=ID,AttributeType=S \
+        --key-schema AttributeName=id,KeyType=HASH \
+        --attribute-definitions AttributeName=id,AttributeType=S \
         --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
         --profile $PROFILE    
 
@@ -28,7 +28,7 @@ if [ $? == "255" ]; then
     echo "Insert initial value..."
     aws dynamodb put-item \
         --table-name $COUNTER_DB \
-        --item '{"ID":{"S":"1"},"C":{"N":"1"}}' \
+        --item '{"id":{"S":"1"},"c":{"N":"1"}}' \
         --profile $PROFILE
 else 
     echo "$COUNTER_DB table already exist"
